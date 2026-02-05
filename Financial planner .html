@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Financial Investment Planner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .slider-container {
+            margin-top: 10px;
+        }
+
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #e0e0e0;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+        }
+
+        .slider-value {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .risk-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .risk-btn {
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .risk-btn:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .risk-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .risk-btn.low.active {
+            background: #10b981;
+            border-color: #10b981;
+        }
+
+        .risk-btn.medium.active {
+            background: #f59e0b;
+            border-color: #f59e0b;
+        }
+
+        .risk-btn.high.active {
+            background: #ef4444;
+            border-color: #ef4444;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s;
+            margin-top: 20px;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .results {
+            display: none;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .result-card h3 {
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .allocation-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .allocation-item {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .allocation-item h4 {
+            margin-bottom: 5px;
+            font-size: 1.1em;
+        }
+
+        .allocation-item .percentage {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .recommendation-list {
+            list-style: none;
+            margin-top: 15px;
+        }
+
+        .recommendation-list li {
+            padding: 10px;
+            background: rgba(255,255,255,0.1);
+            margin-bottom: 10px;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+        }
+
+        .recommendation-list li:before {
+            content: "✓ ";
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .chart {
+            height: 300px;
+            position: relative;
+        }
+
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            height: 100%;
+            gap: 20px;
+            padding: 20px 0;
+        }
+
+        .bar {
+            flex: 1;
+            background: linear-gradient(to top, #667eea, #764ba2);
+            border-radius: 10px 10px 0 0;
+            position: relative;
+            transition: all 0.5s;
+            min-height: 20px;
+        }
+
+        .bar-label {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.9em;
+            color: #666;
+            white-space: nowrap;
+        }
+
+        .bar-value {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .summary-card .value {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .summary-card .label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 968px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .allocation-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .expense-breakdown {
+            margin-top: 15px;
+        }
+
+        .expense-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background: rgba(255,255,255,0.1);
+            margin-bottom: 8px;
+            border-radius: 8px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: white;
+            border-radius: 5px;
+            transition: width 0.5s;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 AI Financial Investment Planner</h1>
+            <p>Personalized investment strategy based on your goals and risk profile</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Input Form -->
+            <div class="card">
+                <h2>📊 Your Financial Profile</h2>
+                
+                <div class="form-group">
+                    <label for="age">Age</label>
+                    <input type="number" id="age" placeholder="Enter your age" min="18" max="100" value="30">
+                </div>
+
+                <div class="form-group">
+                    <label for="income">Monthly Income ($)</label>
+                    <input type="number" id="income" placeholder="Enter monthly income" min="0" value="5000">
+                </div>
+
+                <div class="form-group">
+                    <label for="savings">Current Savings ($)</label>
+                    <input type="number" id="savings" placeholder="Enter current savings" min="0" value="10000">
+                </div>
+
+                <div class="form-group">
+                    <label for="investment">Monthly Investment Amount ($)</label>
+                    <input type="number" id="investment" placeholder="Amount to invest monthly" min="0" value="1000">
+                </div>
+
+                <div class="form-group">
+                    <label for="timeline">Investment Timeline (Years)</label>
+                    <div class="slider-container">
+                        <input type="range" id="timeline" class="slider" min="1" max="40" value="10">
+                        <div class="slider-value">
+                            <span>1 year</span>
+                            <span id="timeline-value">10 years</span>
+                            <span>40 years</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Risk Tolerance</label>
+                    <div class="risk-buttons">
+                        <button class="risk-btn low" data-risk="low">
+                            Low Risk<br>
+                            <small>Conservative</small>
+                        </button>
+                        <button class="risk-btn medium active" data-risk="medium">
+                            Medium Risk<br>
+                            <small>Balanced</small>
+                        </button>
+                        <button class="risk-btn high" data-risk="high">
+                            High Risk<br>
+                            <small>Aggressive</small>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="goal">Financial Goal</label>
+                    <select id="goal">
+                        <option value="retirement">Retirement Planning</option>
+                        <option value="house">Buy a House</option>
+                        <option value="education">Education Fund</option>
+                        <option value="wealth">Wealth Building</option>
+                        <option value="emergency">Emergency Fund</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Monthly Expenses -->
+            <div class="card">
+                <h2>💰 Monthly Expenses</h2>
+                
+                <div class="form-group">
+                    <label for="rent">Housing/Rent ($)</label>
+                    <input type="number" id="rent" placeholder="Monthly rent" min="0" value="1500">
+                </div>
+
+                <div class="form-group">
+                    <label for="utilities">Utilities ($)</label>
+                    <input type="number" id="utilities" placeholder="Electricity, water, internet" min="0" value="200">
+                </div>
+
+                <div class="form-group">
+                    <label for="food">Food & Groceries ($)</label>
+                    <input type="number" id="food" placeholder="Monthly food expenses" min="0" value="600">
+                </div>
+
+                <div class="form-group">
+                    <label for="transport">Transportation ($)</label>
+                    <input type="number" id="transport" placeholder="Car, gas, public transport" min="0" value="300">
+                </div>
+
+                <div class="form-group">
+                    <label for="healthcare">Healthcare ($)</label>
+                    <input type="number" id="healthcare" placeholder="Insurance, medical" min="0" value="200">
+                </div>
+
+                <div class="form-group">
+                    <label for="entertainment">Entertainment & Others ($)</label>
+                    <input type="number" id="entertainment" placeholder="Entertainment, hobbies" min="0" value="400">
+                </div>
+
+                <div class="form-group">
+                    <label for="debt">Debt Payments ($)</label>
+                    <input type="number" id="debt" placeholder="Loans, credit cards" min="0" value="300">
+                </div>
+
+                <button class="calculate-btn" onclick="generatePlan()">
+                    Generate Investment Plan 🚀
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 20px; color: white;">Analyzing your financial profile...</p>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results" id="results">
+            <!-- Summary Cards -->
+            <div class="summary-cards" id="summary-cards"></div>
+
+            <!-- Main Results -->
+            <div class="card" style="grid-column: 1 / -1;">
+                <h2>📈 Your Personalized Investment Plan</h2>
+                <div id="plan-content"></div>
+            </div>
+
+            <!-- Asset Allocation Chart -->
+            <div class="card">
+                <h2>🎯 Asset Allocation Strategy</h2>
+                <div class="chart-container">
+                    <div class="chart">
+                        <div class="bar-chart" id="allocation-chart"></div>
+                    </div>
+                </div>
+                <div id="allocation-details"></div>
+            </div>
+
+            <!-- Recommendations -->
+            <div class="card">
+                <h2>💡 AI Recommendations</h2>
+                <div id="recommendations"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedRisk = 'medium';
+
+        // Risk button selection
+        document.querySelectorAll('.risk-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.risk-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                selectedRisk = this.dataset.risk;
+            });
+        });
+
+        // Timeline slider
+        document.getElementById('timeline').addEventListener('input', function() {
+            document.getElementById('timeline-value').textContent = this.value + ' years';
+        });
+
+        // AI-powered investment plan generator
+        async function generatePlan() {
+            // Get all inputs
+            const age = parseInt(document.getElementById('age').value) || 30;
+            const income = parseFloat(document.getElementById('income').value) || 0;
+            const savings = parseFloat(document.getElementById('savings').value) || 0;
+            const investment = parseFloat(document.getElementById('investment').value) || 0;
+            const timeline = parseInt(document.getElementById('timeline').value) || 10;
+            const goal = document.getElementById('goal').value;
+            
+            // Get expenses
+            const expenses = {
+                rent: parseFloat(document.getElementById('rent').value) || 0,
+                utilities: parseFloat(document.getElementById('utilities').value) || 0,
+                food: parseFloat(document.getElementById('food').value) || 0,
+                transport: parseFloat(document.getElementById('transport').value) || 0,
+                healthcare: parseFloat(document.getElementById('healthcare').value) || 0,
+                entertainment: parseFloat(document.getElementById('entertainment').value) || 0,
+                debt: parseFloat(document.getElementById('debt').value) || 0
+            };
+
+            const totalExpenses = Object.values(expenses).reduce((a, b) => a + b, 0);
+            const disposableIncome = income - totalExpenses;
+
+            // Show loading
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('results').classList.remove('show');
+
+            // Simulate AI processing
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            // Calculate investment strategy using Claude AI
+            const prompt = `You are a financial advisor AI. Based on the following profile, create a detailed investment plan:
+
+Age: ${age}
+Monthly Income: $${income}
+Current Savings: $${savings}
+Monthly Investment: $${investment}
+Investment Timeline: ${timeline} years
+Risk Tolerance: ${selectedRisk}
+Financial Goal: ${goal}
+Total Monthly Expenses: $${totalExpenses}
+Disposable Income: $${disposableIncome}
+
+Provide a JSON response with:
+1. Asset allocation percentages (stocks, bonds, realEstate, cash, crypto)
+2. Expected annual return percentage
+3. Projected portfolio value after timeline
+4. 5 specific recommendations
+5. Monthly savings rate suggestion
+6. Emergency fund recommendation`;
+
+            try {
+                const response = await fetch("https://api.anthropic.com/v1/messages", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        model: "claude-sonnet-4-20250514",
+                        max_tokens: 1000,
+                        messages: [
+                            { role: "user", content: prompt + "\n\nRespond ONLY with valid JSON, no markdown formatting." }
+                        ],
+                    })
+                });
+
+                const data = await response.json();
+                let planData;
+
+                try {
+                    const textContent = data.content[0].text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+                    planData = JSON.parse(textContent);
+                } catch (parseError) {
+                    console.error("Parse error:", parseError);
+                    planData = getDefaultPlan(age, selectedRisk, timeline, investment);
+                }
+
+                displayResults(planData, age, income, savings, investment, timeline, totalExpenses, disposableIncome);
+
+            } catch (error) {
+                console.error("API Error:", error);
+                const planData = getDefaultPlan(age, selectedRisk, timeline, investment);
+                displayResults(planData, age, income, savings, investment, timeline, totalExpenses, disposableIncome);
+            }
+
+            // Hide loading, show results
+            document.getElementById('loading').classList.remove('show');
+            document.getElementById('results').classList.add('show');
+            
+            // Smooth scroll to results
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function getDefaultPlan(age, risk, timeline, monthlyInvestment) {
+            // Rule-based allocation based on age and risk
+            let stocks, bonds, realEstate, cash, crypto;
+            
+            if (risk === 'low') {
+                stocks = Math.max(20, 60 - age);
+                bonds = 50;
+                realEstate = 20;
+                cash = 10;
+                crypto = 0;
+            } else if (risk === 'high') {
+                stocks = Math.min(80, 100 - age);
+                bonds = 10;
+                realEstate = 5;
+                cash = 3;
+                crypto = 2;
+            } else {
+                stocks = Math.max(30, 70 - age);
+                bonds = 30;
+                realEstate = 15;
+                cash = 5;
+                crypto = 0;
+            }
+
+            // Normalize to 100%
+            const total = stocks + bonds + realEstate + cash + crypto;
+            stocks = Math.round((stocks / total) * 100);
+            bonds = Math.round((bonds / total) * 100);
+            realEstate = Math.round((realEstate / total) * 100);
+            cash = Math.round((cash / total) * 100);
+            crypto = 100 - stocks - bonds - realEstate - cash;
+
+            const expectedReturn = risk === 'low' ? 5 : risk === 'high' ? 9 : 7;
+            const projectedValue = calculateFutureValue(monthlyInvestment, expectedReturn, timeline);
+
+            return {
+                allocation: {
+                    stocks: stocks,
+                    bonds: bonds,
+                    realEstate: realEstate,
+                    cash: cash,
+                    crypto: crypto
+                },
+                expectedReturn: expectedReturn,
+                projectedValue: projectedValue,
+                recommendations: [
+                    "Start investing immediately to maximize compound interest over time",
+                    `Maintain an emergency fund of 6 months expenses (approximately $${(monthlyInvestment * 6).toLocaleString()})`,
+                    `Consider dollar-cost averaging by investing consistently every month`,
+                    `Rebalance your portfolio annually to maintain target allocation`,
+                    `Review and adjust your plan as your life circumstances change`
+                ],
+                savingsRate: Math.round((monthlyInvestment / (monthlyInvestment + 3000)) * 100),
+                emergencyFund: monthlyInvestment * 6
+            };
+        }
+
+        function calculateFutureValue(monthlyInvestment, annualReturn, years) {
+            const monthlyRate = annualReturn / 100 / 12;
+            const months = years * 12;
+            return monthlyInvestment * (Math.pow(1 + monthlyRate, months) - 1) / monthlyRate * (1 + monthlyRate);
+        }
+
+        function displayResults(plan, age, income, savings, investment, timeline, totalExpenses, disposableIncome) {
+            // Summary Cards
+            const summaryHTML = `
+                <div class="summary-card">
+                    <div class="label">Projected Portfolio Value</div>
+                    <div class="value">$${plan.projectedValue.toLocaleString(undefined, {maximumFractionDigits: 0})}</div>
+                    <div class="label">in ${timeline} years</div>
+                </div>
+                <div class="summary-card">
+                    <div class="label">Expected Annual Return</div>
+                    <div class="value">${plan.expectedReturn}%</div>
+                    <div class="label">based on allocation</div>
+                </div>
+                <div class="summary-card">
+                    <div class="label">Monthly Investment</div>
+                    <div class="value">$${investment.toLocaleString()}</div>
+                    <div class="label">${Math.round((investment/income)*100)}% of income</div>
+                </div>
+            `;
+            document.getElementById('summary-cards').innerHTML = summaryHTML;
+
+            // Allocation Chart
+            const allocations = plan.allocation;
+            let chartHTML = '';
+            const colors = {
+                stocks: '#667eea',
+                bonds: '#764ba2',
+                realEstate: '#f093fb',
+                cash: '#4facfe',
+                crypto: '#f59e0b'
+            };
+
+            for (let [key, value] of Object.entries(allocations)) {
+                if (value > 0) {
+                    chartHTML += `
+                        <div class="bar" style="height: ${value * 2}px; background: ${colors[key]};">
+                            <div class="bar-value">${value}%</div>
+                            <div class="bar-label">${key.charAt(0).toUpperCase() + key.slice(1)}</div>
+                        </div>
+                    `;
+                }
+            }
+            document.getElementById('allocation-chart').innerHTML = chartHTML;
+
+            // Allocation Details
+            const allocationDetailsHTML = `
+                <div class="allocation-grid">
+                    ${Object.entries(allocations).filter(([k, v]) => v > 0).map(([key, value]) => `
+                        <div class="allocation-item">
+                            <h4>${key.charAt(0).toUpperCase() + key.slice(1)}</h4>
+                            <div class="percentage">${value}%</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${value}%"></div>
+                            </div>
+                            <small>$${((investment * value) / 100).toLocaleString()} monthly</small>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            document.getElementById('allocation-details').innerHTML = allocationDetailsHTML;
+
+            // Recommendations
+            const recommendationsHTML = `
+                <div class="result-card">
+                    <h3>Key Recommendations</h3>
+                    <ul class="recommendation-list">
+                        ${plan.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+            document.getElementById('recommendations').innerHTML = recommendationsHTML;
+
+            // Plan Content
+            const planHTML = `
+                <div class="result-card">
+                    <h3>Financial Health Analysis</h3>
+                    <div class="expense-breakdown">
+                        <div class="expense-item">
+                            <span>Disposable Income:</span>
+                            <strong>$${disposableIncome.toLocaleString()}</strong>
+                        </div>
+                        <div class="expense-item">
+                            <span>Savings Rate:</span>
+                            <strong>${Math.round((investment/income)*100)}%</strong>
+                        </div>
+                        <div class="expense-item">
+                            <span>Emergency Fund Goal:</span>
+                            <strong>$${(totalExpenses * 6).toLocaleString()}</strong>
+                        </div>
+                        <div class="expense-item">
+                            <span>Years to Emergency Fund:</span>
+                            <strong>${Math.ceil((totalExpenses * 6) / investment)} months</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="result-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <h3>Investment Growth Projection</h3>
+                    <p>Based on your ${selectedRisk} risk profile and ${timeline}-year timeline:</p>
+                    <div class="expense-breakdown">
+                        <div class="expense-item">
+                            <span>Total Invested:</span>
+                            <strong>$${(investment * timeline * 12).toLocaleString()}</strong>
+                        </div>
+                        <div class="expense-item">
+                            <span>Projected Returns:</span>
+                            <strong>$${(plan.projectedValue - (investment * timeline * 12)).toLocaleString(undefined, {maximumFractionDigits: 0})}</strong>
+                        </div>
+                        <div class="expense-item">
+                            <span>Final Portfolio Value:</span>
+                            <strong>$${plan.projectedValue.toLocaleString(undefined, {maximumFractionDigits: 0})}</strong>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('plan-content').innerHTML = planHTML;
+        }
+    </script>
+</body>
+</html>
